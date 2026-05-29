@@ -1,0 +1,75 @@
+name: Reset Lista Pelada
+
+on:
+  schedule:
+    - cron: '0 15 * * 3'
+  workflow_dispatch:
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Buscar e resetar lista
+        env:
+          JSONBIN_ID: ${{ secrets.JSONBIN_ID }}
+          JSONBIN_KEY: ${{ secrets.JSONBIN_KEY }}
+        run: |
+          python3 - << 'PYEOF'
+          import json, unicodedata, re, os, subprocess
+
+          KEY = os.environ["JSONBIN_KEY"]
+          BIN = os.environ["JSONBIN_ID"]
+          URL = "https://api.jsonbin.io/v3/b/" + BIN
+
+          def normalizar(nome):
+              nome = nome.strip().lower()
+              nome = unicodedata.normalize('NFD', nome)
+              nome = ''.join(c for c in nome if unicodedata.category(c) != 'Mn')
+              nome = re.sub(r'\s+', ' ', nome)
+              return nome
+
+          def formatar(nome):
+              return ' '.join(w.capitalize() for w in nome.strip().split())
+
+          # Buscar dados
+          r = subprocess.run([
+              'curl', '-s',
+              '-H', 'X-Master-Key: ' + KEY,
+              '-H', 'X-Bin-Meta: false',
+              URL + '/latest'
+          ], capture_output=True, text=True)
+          data = json.loads(r.stdout)
+          if "record" in data:
+              data = data["record"]
+
+          linha = data.get("linha", [])
+          espera = data.get("espera", [])
+          convidados = data.get("convidados", [])
+          pendurados = data.get("pendurados", [])
+          pagos = data.get("pagos", [])
+
+          pagos_norm = [normalizar(p) for p in pagos]
+          todos = linha + espera + convidados
+
+          for nome in todos:
+              nn = normalizar(nome)
+              if nn in pagos_norm:
+                  continue
+              idx = next((i for i, p in enumerate(pendurados) if normalizar(p["nome"]) == nn), -1)
+              if idx == -1:
+                  pendurados.append({"nome": formatar(nome), "cor": "amarelo"})
+              else:
+                  pendurados[idx]["cor"] = "vermelho"
+
+          novo = {"linha": [], "espera": [], "convidados": [], "pendurados": pendurados, "pagos": []}
+
+          # Salvar
+          r2 = subprocess.run([
+              'curl', '-s', '-X', 'PUT',
+              '-H', 'Content-Type: application/json',
+              '-H', 'X-Master-Key: ' + KEY,
+              '-d', json.dumps(novo),
+              URL
+          ], capture_output=True, text=True)
+          print("Resultado:", r2.stdout)
+          PYEOF
