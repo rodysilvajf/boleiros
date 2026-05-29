@@ -14,8 +14,8 @@ jobs:
           python3 << 'PYEOF'
           import json, urllib.request, unicodedata, re
 
-          BIN_ID = "${{ secrets.JSONBIN_ID }}"
-          API_KEY = "${{ secrets.JSONBIN_KEY }}"
+          BIN_ID = '${{ secrets.JSONBIN_ID }}'
+          API_KEY = '${{ secrets.JSONBIN_KEY }}'
           BASE_URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
 
           def normalizar(nome):
