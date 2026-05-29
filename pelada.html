@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Boleiros 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Teko:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00e676;
+    --green-dark: #00c853;
+    --green-dim: rgba(0,230,118,0.08);
+    --yellow: #ffea00;
+    --red: #ff1744;
+    --bg: #080d08;
+    --card: #0e150e;
+    --card2: #131f13;
+    --border: #1a2e1a;
+    --text: #dff0df;
+    --muted: #4d6b4d;
+    --gold: #ffd54f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 48px; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(160deg, #0a1f0a 0%, #061408 100%);
+    border-bottom: 2px solid var(--green);
+    padding: 24px 16px 18px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% -10%, rgba(0,230,118,0.15) 0%, transparent 65%);
+  }
+  .header h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3rem;
+    letter-spacing: 5px;
+    color: var(--green);
+    text-shadow: 0 0 40px rgba(0,230,118,0.5), 0 2px 0 rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .header .info {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    position: relative;
+  }
+  .header .info span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  .header .info span strong { color: var(--text); font-weight: 700; }
+
+  /* STATUS BAR */
+  .vagas-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .vaga-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.3px;
+  }
+  .vaga-pill .count { color: var(--green); font-size: 0.95rem; font-weight: 700; }
+  .vaga-pill .count.warn { color: var(--yellow); }
+  .vaga-pill .count.full { color: var(--red); }
+
+  /* SYNC STATUS */
+  .sync-bar {
+    text-align: center;
+    padding: 7px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .sync-bar.syncing { color: var(--yellow); }
+  .sync-bar.ok { color: var(--green); }
+  .sync-bar.error { color: var(--red); }
+
+  .container { padding: 14px; max-width: 480px; margin: 0 auto; }
+
+  /* SECTION */
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; background: var(--card2); border-bottom: 1px solid var(--border); }
+  .section-title { font-family: 'Teko', sans-serif; font-size: 1.15rem; letter-spacing: 2px; color: var(--green); font-weight: 600; }
+  .section-count { font-size: 0.72rem; font-weight: 700; color: var(--muted); background: var(--bg); border-radius: 10px; padding: 2px 10px; font-family: 'Inter', sans-serif; }
+
+  /* PLAYER ROW */
+  .player-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+  .player-row:last-child { border-bottom: none; }
+  .player-row.empty { opacity: 0.3; }
+  .player-num {
+    font-family: 'Teko', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 28px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  .player-name { flex: 1; font-weight: 600; font-size: 0.95rem; color: var(--text); font-family: 'Inter', sans-serif; }
+  .player-row.empty .player-name { color: var(--muted); font-style: italic; font-weight: 400; font-size: 0.85rem; }
+  .player-row.fixed .player-name { color: var(--green); font-weight: 700; }
+
+  /* JOSUÉ - homenagem */
+  .player-row.homenagem {
+    background: linear-gradient(90deg, rgba(255,213,79,0.06) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(255,213,79,0.15);
+  }
+  .player-row.homenagem .player-num { color: var(--gold); }
+  .player-row.homenagem .player-name-josue {
+    flex: 1;
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px rgba(255,213,79,0.4);
+  }
+  .badge-homenagem {
+    font-size: 0.6rem;
+    background: rgba(255,213,79,0.1);
+    border: 1px solid rgba(255,213,79,0.3);
+    color: var(--gold);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .badge-fixo {
+    font-size: 0.6rem;
+    background: rgba(0,230,118,0.1);
+    border: 1px solid rgba(0,230,118,0.25);
+    color: var(--green);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* PENDURADOS */
+  .pendurados-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 16px; min-height: 48px; }
+  .pendurado-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+  }
+  .pendurado-tag.amarelo { background: rgba(255,234,0,0.1); border: 1px solid rgba(255,234,0,0.3); color: var(--yellow); }
+  .pendurado-tag.verde { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.25); color: var(--green); }
+  .remove-pend { cursor: pointer; opacity: 0; font-size: 0.7rem; margin-left: 2px; transition: opacity 0.15s; }
+  .admin-mode .remove-pend { opacity: 0.5; }
+  .admin-mode .remove-pend:hover { opacity: 1; }
+  .pendurados-empty { color: var(--muted); font-size: 0.82rem; font-style: italic; padding: 4px 0; font-family: 'Inter', sans-serif; }
+
+  /* PIX */
+  .pix-info { display: flex; align-items: center; gap: 12px; background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.18); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; }
+  .pix-label { font-size: 0.7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-family: 'Inter', sans-serif; }
+  .pix-key { font-weight: 700; font-size: 0.95rem; color: var(--green); font-family: 'Inter', sans-serif; }
+
+  /* FORM */
+  .inscrever { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 16px; margin-bottom: 12px; }
+  .inscrever h3 { font-family: 'Teko', sans-serif; font-size: 1.3rem; letter-spacing: 2px; color: var(--green); margin-bottom: 14px; font-weight: 600; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-family: 'Inter', sans-serif; }
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--green); }
+  .form-group input::placeholder { color: var(--muted); }
+  .form-group select option { background: var(--bg); }
+
+  .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-family: 'Teko', sans-serif; font-size: 1.2rem; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+  .btn-green { background: var(--green); color: #000; }
+  .btn-green:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,230,118,0.3); }
+  .btn-green:active { transform: translateY(0); }
+  .btn-green:disabled { background: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ADMIN */
+  .admin-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+  .admin-toggle { width: 100%; padding: 13px 16px; background: var(--card2); border: none; color: var(--muted); font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; }
+  .admin-content { display: none; padding: 16px; }
+  .admin-content.open { display: block; }
+  .admin-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .admin-input-row input {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    outline: none;
+  }
+  .admin-input-row input:focus { border-color: var(--green); }
+  .admin-input-row input::placeholder { color: var(--muted); }
+  .btn-sm { padding: 9px 14px; border-radius: 8px; border: none; font-family: 'Teko', sans-serif; font-size: 1rem; letter-spacing: 1px; cursor: pointer; font-weight: 600; white-space: nowrap; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-reset { background: #1a2e1a; color: var(--text); width: 100%; margin-top: 10px; padding: 11px; border: 1px solid var(--border); }
+  .admin-label { font-size: 0.72rem; color: var(--muted); margin: 14px 0 8px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-family: 'Inter', sans-serif; }
+  .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  .msg { text-align: center; padding: 10px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; margin-top: 10px; display: none; font-family: 'Inter', sans-serif; }
+  .msg.success { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+  .msg.error { background: rgba(255,23,68,0.1); color: var(--red); border: 1px solid rgba(255,23,68,0.25); }
+
+  .copy-btn { width: 100%; padding: 13px; border-radius: 10px; border: 1.5px solid var(--green); background: transparent; color: var(--green); font-family: 'Teko', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; margin-bottom: 12px; transition: all 0.2s; font-weight: 600; }
+  .copy-btn:hover { background: rgba(0,230,118,0.08); }
+
+  /* LOADING */
+  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; gap: 16px; }
+  .loading-overlay h2 { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 4px; color: var(--green); }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  select option { background: #0e150e; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <h2>CARREGANDO...</h2>
+</div>
+
+<div class="header">
+  <h1>⚽ Boleiros 2026 ⭐</h1>
+  <div class="info">
+    <span>🗓 <strong>Domingo, 08:00</strong></span>
+    <span>💵 <strong>R$ 15,00</strong></span>
+  </div>
+</div>
+
+<div class="vagas-bar">
+  <div class="vaga-pill">⚽ Linha <span class="count" id="c-lin">0</span>/18</div>
+  <div class="vaga-pill">📃 Espera <span class="count" id="c-esp">0</span>/6</div>
+  <div class="vaga-pill">👊 Convidados <span class="count" id="c-con">0</span>/4</div>
+</div>
+
+<div class="sync-bar" id="sync-bar">● CONECTANDO...</div>
+
+<div class="container">
+
+  <div class="pix-info">
+    <span style="font-size:1.5rem">💱</span>
+    <div>
+      <div class="pix-label">Pix</div>
+      <div class="pix-key">(32) 99906-3807</div>
+    </div>
+  </div>
+
+  <!-- INSCRIÇÃO -->
+  <div class="inscrever">
+    <h3>📝 Me inscrever</h3>
+    <div class="form-group">
+      <label>Seu nome</label>
+      <input type="text" id="input-nome" placeholder="Ex: Rodrigo" maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>Posição</label>
+      <select id="input-pos">
+        <option value="linha">⚽ Linha</option>
+        <option value="convidado">👊 Convidado</option>
+      </select>
+    </div>
+    <button class="btn btn-green" id="btn-inscrever" onclick="inscrever()">QUERO JOGAR</button>
+    <div class="msg" id="msg-inscricao"></div>
+  </div>
+
+  <!-- GOLEIROS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🧤 Goleiros</span>
+      <span class="section-count">2/2</span>
+    </div>
+    <div class="player-row fixed">
+      <span class="player-num">01</span>
+      <span class="player-name">Buffon</span>
+      <span class="badge-fixo">FIXO</span>
+    </div>
+    <div class="player-row fixed">
+      <span class="player-num">02</span>
+      <span class="player-name">Pelé</span>
+      <span class="badge-fixo">FIXO</span>
+    </div>
+  </div>
+
+  <!-- LINHA -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">⚽ Linha</span>
+      <span class="section-count" id="label-lin">0/18</span>
+    </div>
+    <div id="lista-linha"></div>
+  </div>
+
+  <!-- ESPERA -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">📃 Espera</span>
+      <span class="section-count" id="label-esp">0/6</span>
+    </div>
+    <div id="lista-espera"></div>
+  </div>
+
+  <!-- CONVIDADOS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">👊 Convidados</span>
+      <span class="section-count" id="label-con">0/4</span>
+    </div>
+    <div id="lista-convidados"></div>
+  </div>
+
+  <!-- PENDURADOS -->
+  <div class="section" id="section-pendurados">
+    <div class="section-header">
+      <span class="section-title">🟨 Pendurados</span>
+    </div>
+    <div class="pendurados-list" id="lista-pendurados"></div>
+  </div>
+
+  <button class="copy-btn" onclick="copiarLista()">📋 COPIAR LISTA PRO WHATSAPP</button>
+
+  <!-- ADMIN -->
+  <div class="admin-section">
+    <button class="admin-toggle" onclick="toggleAdmin()">🔐 Área do Admin</button>
+    <div class="admin-content" id="admin-content">
+      <div id="admin-login">
+        <div class="form-group" style="margin-bottom:10px">
+          <label>Senha</label>
+          <input type="password" id="admin-senha" placeholder="Digite a senha">
+        </div>
+        <button class="btn btn-green" onclick="verificarSenha()">ENTRAR</button>
+      </div>
+      <div id="admin-painel" style="display:none">
+        <div class="admin-label">Remover jogador</div>
+        <div class="admin-input-row">
+          <input type="text" id="admin-remove-nome" placeholder="Nome do jogador">
+          <button class="btn-sm btn-red" onclick="removerJogador()">TIRAR</button>
+        </div>
+        <div class="divider"></div>
+        <div class="admin-label">Pendurados — clique no ✕ para remover</div>
+        <div class="admin-input-row">
+          <input type="text" id="admin-pend-nome" placeholder="Nome">
+          <select id="admin-pend-cor" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.85rem;">
+            <option value="amarelo">🟨 Amarelo</option>
+            <option value="verde">🟩 Verde</option>
+          </select>
+          <button class="btn-sm btn-green" onclick="adicionarPendurado()" style="background:var(--green);color:#000;">ADD</button>
+        </div>
+        <div class="divider"></div>
+        <button class="btn-sm btn-reset" onclick="resetarLista()">🔄 RESETAR LISTA PARA NOVA SEMANA</button>
+        <div class="msg" id="msg-admin"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────
+const BIN_ID = '6a18d3fe21f9ee59d297811a';
+const API_KEY = '$2a$10$vfFLURJCGCqVgt151nGZeuteQF5xiMcnM.OjAof5ve3bMXRLZSm1C';
+const BASE_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const HEADERS = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY };
+
+const LIMITES = { linha: 18, espera: 6, convidado: 4 };
+const SENHA_ADMIN = 'pelada2026';
+const CAMISA_HOMENAGEM = 2;
+
+const PENDURADOS_PADRAO = [
+  { nome: 'Fabio', cor: 'amarelo' },
+  { nome: 'David', cor: 'amarelo' },
+  { nome: 'Bahia', cor: 'amarelo' },
+  { nome: 'Hudson', cor: 'amarelo' },
+  { nome: 'Elton', cor: 'amarelo' },
+  { nome: 'Assis', cor: 'amarelo' },
+];
+
+let estado = { linha: [], espera: [], convidados: [], pendurados: [] };
+let adminLogado = false;
+let salvando = false;
+
+// ─── API ───────────────────────────────────────────────────
+async function carregarDados() {
+  setSyncBar('syncing', '● SINCRONIZANDO...');
+  try {
+    const res = await fetch(`${BASE_URL}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+    const json = await res.json();
+    const d = json.record;
+    estado = {
+      linha: d.linha || [],
+      espera: d.espera || [],
+      convidados: d.convidados || [],
+      pendurados: d.pendurados || JSON.parse(JSON.stringify(PENDURADOS_PADRAO))
+    };
+    setSyncBar('ok', '● DADOS ATUALIZADOS');
+    setTimeout(() => setSyncBar('', '● AO VIVO'), 2000);
+  } catch(e) {
+    setSyncBar('error', '● ERRO DE CONEXÃO — tente recarregar');
+  }
+  document.getElementById('loading').style.display = 'none';
+  render();
+}
+
+async function salvarDados() {
+  if (salvando) return;
+  salvando = true;
+  setSyncBar('syncing', '● SALVANDO...');
+  document.getElementById('btn-inscrever').disabled = true;
+  try {
+    await fetch(BASE_URL, {
+      method: 'PUT',
+      headers: HEADERS,
+      body: JSON.stringify(estado)
+    });
+    setSyncBar('ok', '● SALVO ✓');
+    setTimeout(() => setSyncBar('', '● AO VIVO'), 2000);
+  } catch(e) {
+    setSyncBar('error', '● ERRO AO SALVAR');
+  }
+  salvando = false;
+  document.getElementById('btn-inscrever').disabled = false;
+}
+
+function setSyncBar(tipo, txt) {
+  const el = document.getElementById('sync-bar');
+  el.textContent = txt;
+  el.className = 'sync-bar ' + tipo;
+}
+
+// ─── RENDER ────────────────────────────────────────────────
+function numEmoji(n) {
+  const d = String(n).padStart(2,'0').split('');
+  const m = {'0':'0️⃣','1':'1️⃣','2':'2️⃣','3':'3️⃣','4':'4️⃣','5':'5️⃣','6':'6️⃣','7':'7️⃣','8':'8️⃣','9':'9️⃣'};
+  return d.map(x => m[x]).join('');
+}
+
+function renderLinha() {
+  const el = document.getElementById('lista-linha');
+  const label = document.getElementById('label-lin');
+  const counter = document.getElementById('c-lin');
+  el.innerHTML = '';
+
+  let slotIdx = 0;
+  for (let camisa = 1; slotIdx < LIMITES.linha || camisa <= CAMISA_HOMENAGEM; camisa++) {
+    if (camisa === CAMISA_HOMENAGEM) {
+      const row = document.createElement('div');
+      row.className = 'player-row homenagem';
+      row.innerHTML = `
+        <span class="player-num">${String(camisa).padStart(2,'0')}</span>
+        <span class="player-name-josue">JOSUÉ</span>
+        <span class="badge-homenagem">IN MEMORIAM</span>`;
+      el.appendChild(row);
+      continue;
+    }
+    if (slotIdx >= LIMITES.linha) break;
+    const jogador = estado.linha[slotIdx];
+    const row = document.createElement('div');
+    row.className = 'player-row' + (!jogador ? ' empty' : '');
+    row.innerHTML = `<span class="player-num">${String(camisa).padStart(2,'0')}</span><span class="player-name">${jogador || '—'}</span>`;
+    el.appendChild(row);
+    slotIdx++;
+  }
+
+  label.textContent = `${estado.linha.length}/${LIMITES.linha}`;
+  counter.textContent = estado.linha.length;
+  counter.className = 'count' + (estado.linha.length >= LIMITES.linha ? ' full' : estado.linha.length >= LIMITES.linha - 2 ? ' warn' : '');
+}
+
+function renderSimples(id, arr, limite, labelId, counterId) {
+  const el = document.getElementById(id);
+  const label = document.getElementById(labelId);
+  const counter = document.getElementById(counterId);
+  el.innerHTML = '';
+  for (let i = 0; i < limite; i++) {
+    const row = document.createElement('div');
+    row.className = 'player-row' + (i >= arr.length ? ' empty' : '');
+    row.innerHTML = `<span class="player-num">${String(i+1).padStart(2,'0')}</span><span class="player-name">${arr[i] || '—'}</span>`;
+    el.appendChild(row);
+  }
+  label.textContent = `${arr.length}/${limite}`;
+  counter.textContent = arr.length;
+  counter.className = 'count' + (arr.length >= limite ? ' full' : arr.length >= limite - 1 ? ' warn' : '');
+}
+
+function renderPendurados() {
+  const el = document.getElementById('lista-pendurados');
+  el.innerHTML = '';
+  if (!estado.pendurados || estado.pendurados.length === 0) {
+    el.innerHTML = '<span class="pendurados-empty">Nenhum pendurado 👏</span>';
+    return;
+  }
+  estado.pendurados.forEach((p, idx) => {
+    const emoji = p.cor === 'amarelo' ? '🟨' : '🟩';
+    const tag = document.createElement('span');
+    tag.className = `pendurado-tag ${p.cor}`;
+    tag.innerHTML = `${emoji} ${p.nome} <span class="remove-pend" onclick="removerPendurado(${idx})">✕</span>`;
+    el.appendChild(tag);
+  });
+  if (adminLogado) el.classList.add('admin-mode');
+}
+
+function render() {
+  renderLinha();
+  renderSimples('lista-espera', estado.espera, LIMITES.espera, 'label-esp', 'c-esp');
+  renderSimples('lista-convidados', estado.convidados, LIMITES.convidado, 'label-con', 'c-con');
+  renderPendurados();
+}
+
+// ─── INSCRIÇÃO ──────────────────────────────────────────────
+async function inscrever() {
+  const nome = document.getElementById('input-nome').value.trim();
+  const pos = document.getElementById('input-pos').value;
+  const msgEl = document.getElementById('msg-inscricao');
+  if (!nome) return showMsg(msgEl, 'Coloca seu nome!', 'error');
+
+  const todos = [...estado.linha, ...estado.espera, ...estado.convidados];
+  if (todos.map(n => n.toLowerCase()).includes(nome.toLowerCase()))
+    return showMsg(msgEl, 'Esse nome já está na lista!', 'error');
+  if (['buffon','pelé','pele','josué','josue'].includes(nome.toLowerCase()))
+    return showMsg(msgEl, 'Esse nome é reservado!', 'error');
+
+  if (pos === 'convidado') {
+    if (estado.convidados.length < LIMITES.convidado) {
+      estado.convidados.push(nome);
+      showMsg(msgEl, `${nome} confirmado como convidado! ✅`, 'success');
+    } else return showMsg(msgEl, 'Vagas de convidado esgotadas!', 'error');
+  } else {
+    if (estado.linha.length < LIMITES.linha) {
+      estado.linha.push(nome);
+      showMsg(msgEl, `${nome} confirmado! ⚽`, 'success');
+    } else if (estado.espera.length < LIMITES.espera) {
+      estado.espera.push(nome);
+      showMsg(msgEl, `${nome} na lista de espera! 📃`, 'success');
+    } else return showMsg(msgEl, 'Lista cheia! Sem mais vagas.', 'error');
+  }
+
+  document.getElementById('input-nome').value = '';
+  render();
+  await salvarDados();
+}
+
+// ─── ADMIN ──────────────────────────────────────────────────
+function toggleAdmin() {
+  document.getElementById('admin-content').classList.toggle('open');
+}
+
+function verificarSenha() {
+  if (document.getElementById('admin-senha').value === SENHA_ADMIN) {
+    adminLogado = true;
+    document.getElementById('admin-painel').style.display = 'block';
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('lista-pendurados').classList.add('admin-mode');
+  } else { alert('Senha errada!'); }
+}
+
+async function removerJogador() {
+  const nome = document.getElementById('admin-remove-nome').value.trim().toLowerCase();
+  const msgEl = document.getElementById('msg-admin');
+  if (!nome) return;
+  let removido = false;
+  ['linha','espera','convidados'].forEach(k => {
+    const idx = estado[k].map(n => n.toLowerCase()).indexOf(nome);
+    if (idx !== -1) { estado[k].splice(idx, 1); removido = true; }
+  });
+  if (removido && estado.linha.length < LIMITES.linha && estado.espera.length > 0) {
+    const promovido = estado.espera.shift();
+    estado.linha.push(promovido);
+    showMsg(msgEl, `Removido! ${promovido} entrou da espera ✅`, 'success');
+  } else if (removido) {
+    showMsg(msgEl, 'Jogador removido!', 'success');
+  } else {
+    showMsg(msgEl, 'Nome não encontrado.', 'error');
+  }
+  document.getElementById('admin-remove-nome').value = '';
+  render();
+  await salvarDados();
+}
+
+async function adicionarPendurado() {
+  const nome = document.getElementById('admin-pend-nome').value.trim();
+  const cor = document.getElementById('admin-pend-cor').value;
+  const msgEl = document.getElementById('msg-admin');
+  if (!nome) return;
+  if (!estado.pendurados) estado.pendurados = [];
+  if (estado.pendurados.map(p => p.nome.toLowerCase()).includes(nome.toLowerCase()))
+    return showMsg(msgEl, 'Já está nos pendurados!', 'error');
+  estado.pendurados.push({ nome, cor });
+  document.getElementById('admin-pend-nome').value = '';
+  render();
+  document.getElementById('lista-pendurados').classList.add('admin-mode');
+  await salvarDados();
+  showMsg(msgEl, `${nome} adicionado! 🟨`, 'success');
+}
+
+async function removerPendurado(idx) {
+  estado.pendurados.splice(idx, 1);
+  render();
+  document.getElementById('lista-pendurados').classList.add('admin-mode');
+  await salvarDados();
+}
+
+async function resetarLista() {
+  if (!confirm('Resetar lista de jogadores para a próxima semana?\n(Pendurados permanecem)')) return;
+  estado.linha = [];
+  estado.espera = [];
+  estado.convidados = [];
+  render();
+  await salvarDados();
+  showMsg(document.getElementById('msg-admin'), 'Lista resetada! ✅', 'success');
+}
+
+// ─── COPIAR WHATSAPP ────────────────────────────────────────
+function copiarLista() {
+  let txt = `⚽  Boleiros *2026*⭐\n🗓 Domingo, 08:00\n💵 R$ 15,00\n💱 Pix: (32) 99906-3807\n\n`;
+  txt += `🧤 Goleiros \n${numEmoji(1)} Buffon\n${numEmoji(2)} Pelé\n`;
+  txt += `\n⚽ Linha\n`;
+  let slotIdx = 0;
+  for (let camisa = 1; slotIdx < LIMITES.linha || camisa <= CAMISA_HOMENAGEM; camisa++) {
+    if (camisa === CAMISA_HOMENAGEM) { txt += `${numEmoji(camisa)} JOSUÉ 🕊️\n`; continue; }
+    if (slotIdx >= LIMITES.linha) break;
+    txt += `${numEmoji(camisa)} ${estado.linha[slotIdx] || ''}\n`;
+    slotIdx++;
+  }
+  txt += `\n📃 Espera\n`;
+  for (let i = 0; i < LIMITES.espera; i++)
+    txt += `${numEmoji(LIMITES.linha + 2 + i)} ${estado.espera[i] || ''}\n`;
+  txt += `\n👊🏻 Convidados\n`;
+  for (let i = 0; i < LIMITES.convidado; i++)
+    txt += `${numEmoji(i+1)} ${estado.convidados[i] || ''}\n`;
+  if (estado.pendurados && estado.pendurados.length > 0) {
+    txt += `\nPendurados\n`;
+    estado.pendurados.forEach(p => txt += `${p.cor === 'amarelo' ? '🟨' : '🟩'} ${p.nome}\n`);
+  }
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ COPIADO!';
+    setTimeout(() => btn.textContent = '📋 COPIAR LISTA PRO WHATSAPP', 2500);
+  });
+}
+
+function showMsg(el, txt, tipo) {
+  el.textContent = txt; el.className = `msg ${tipo}`; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3500);
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+carregarDados();
+// Atualiza a cada 30 segundos automaticamente
+setInterval(() => { if (!salvando) carregarDados(); }, 30000);
+</script>
+</body>
+</html>
