@@ -61,7 +61,7 @@ jobs:
               else:
                   pendurados[idx]["cor"] = "vermelho"
 
-          novo = {"linha": [], "espera": [], "convidados": [], "pendurados": pendurados, "pagos": []}
+          novo = {"linha": [], "espera": [], "convidados": [], "pendurados": pendurados, "pagos": [], "log": []}
 
           # Salvar
           r2 = subprocess.run([
